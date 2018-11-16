@@ -11,7 +11,18 @@ Run it with
 
 	docker run --rm -p 44622:44622/udp logstash
 
-### Configuration
+Elasticsearch (config found in elasticsearch/config/elasticsearch.yml):
+
+	docker build -t elasticsearch elasticsearch/
+	docker run --network=host -p 9200:9200 elasticsearch
+
+Kibana (configuration found in kibana/config/kibana.yml):
+
+	docker build -t kibana kibana/
+	docker run --network=host -p 5601:5601 kibana
+
+
+### Logstash configuration
 
 The Logstash pipeline configuration is specified in
 `logstash/pipeline/logstash.conf`.
