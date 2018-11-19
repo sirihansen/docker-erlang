@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: elasticsearch
+  name: elasticsearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: elasticsearch
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: elasticsearch
+    spec:
+      containers:
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+        imagePullPolicy: Always
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2500Mi
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
+          name: config-volume
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          name: elasticsearch-config
+          items:
+          - key: elasticsearch.yml
+            path: elasticsearch.yml
+        name: config-volume

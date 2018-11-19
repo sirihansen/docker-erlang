@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: logstash
+  name: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: logstash
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: logstash
+    spec:
+      containers:
+      - image: docker.elastic.co/logstash/logstash:6.4.3
+        imagePullPolicy: Always
+        name: logstash
+        ports:
+        - containerPort: 9600
+          protocol: TCP
+        - containerPort: 44622
+          protocol: UDP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2500Mi
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /usr/share/logstash/pipeline/
+          name: pipeline-config-volume
+        - mountPath: /usr/share/logstash/config/logstash.yml
+          subPath: logstash.yml
+          name: settings-config-volume
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          name: logstash-config
+          items:
+          - key: logstash.conf
+            path: logstash.conf
+        name: pipeline-config-volume
+      - configMap:
+          name: logstash-config
+          items:
+          - key: logstash.yml
+            path: logstash.yml
+        name: settings-config-volume
